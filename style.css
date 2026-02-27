@@ -1,0 +1,53 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #87ceeb; /* Sky blue */
+    font-family: 'Quicksand', sans-serif;
+}
+
+#ui {
+    position: fixed;
+    inset: 0;
+    padding: 20px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 10;
+}
+
+.speed-card {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    width: fit-content;
+    box-shadow: 0 4px 0 #ddd;
+    border: 3px solid #333;
+}
+
+#speed {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: #ff5722;
+}
+
+.speed-card small {
+    color: #666;
+    font-weight: bold;
+}
+
+.controls-card {
+    align-self: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 2px solid #333;
+    font-weight: bold;
+    color: #333;
+}
+
+#game {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
