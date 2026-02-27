@@ -45,6 +45,13 @@ Due to browser security restrictions (CORS) regarding 3D models (`.glb` files), 
 
 ---
 
+## 🎵 Soundtrack
+
+Currently featuring iconic Eurobeat tracks:
+-   **Leslie Parrish** - *Killing My Love*
+
+---
+
 ## 🛠️ Technology Stack
 
 -   **Engine**: [Three.js](https://threejs.org/) (WebGL)
