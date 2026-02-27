@@ -8,6 +8,7 @@ class ToonGame {
         this.createWorld();
         this.createCar();
         this.setupInput();
+        this.setupMusic();
         this.animate();
     }
 
@@ -47,6 +48,17 @@ class ToonGame {
         this.collidables = []; // Static objects with bounds
         this.keys = {};
         this.clock = new THREE.Clock();
+        
+        // Game States: 'MENU', 'PLAYING', 'PAUSED'
+        this.gameState = 'MENU';
+        this.ui = {
+            mainMenu: document.getElementById('main-menu'),
+            pauseMenu: document.getElementById('pause-menu'),
+            howToModal: document.getElementById('how-to-modal'),
+            hud: document.getElementById('hud'),
+            speed: document.getElementById('speed'),
+            speedLabel: document.querySelector('.speed-card small')
+        };
     }
 
     createWorld() {
@@ -226,14 +238,37 @@ class ToonGame {
             this.keys[e.code] = true;
             
             // Toggle Cruise Mode
-            if (e.code === 'KeyL') {
+            if (e.code === 'KeyL' && this.gameState === 'PLAYING') {
                 this.isCruiseMode = !this.isCruiseMode;
                 if (this.isCruiseMode) {
                     this.cruiseSpeed = Math.max(10, Math.abs(this.speed));
                 }
             }
+
+            // Pause toggle
+            if (e.code === 'Escape') {
+                if (this.gameState === 'PLAYING') {
+                    this.pause();
+                } else if (this.gameState === 'PAUSED') {
+                    this.resume();
+                }
+            }
+
+            // Enter to start from menu
+            if (e.code === 'Enter' && this.gameState === 'MENU') {
+                this.startGame();
+            }
         });
         window.addEventListener('keyup', e => this.keys[e.code] = false);
+
+        // Menu Button Listeners
+        document.getElementById('start-btn').onclick = () => this.startGame();
+        document.getElementById('resume-btn').onclick = () => this.resume();
+        document.getElementById('restart-btn').onclick = () => this.resetGame(true);
+        document.getElementById('quit-btn').onclick = () => this.showMainMenu();
+        document.getElementById('how-to-btn').onclick = () => this.toggleHowTo(true);
+        document.getElementById('close-how-to').onclick = () => this.toggleHowTo(false);
+
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -241,9 +276,63 @@ class ToonGame {
         });
     }
 
+    // --- State Management ---
+
+    startGame() {
+        this.gameState = 'PLAYING';
+        this.ui.mainMenu.classList.add('hidden');
+        this.ui.hud.classList.remove('hidden');
+    }
+
+    pause() {
+        this.gameState = 'PAUSED';
+        this.ui.pauseMenu.classList.remove('hidden');
+        this.ui.hud.classList.add('hidden');
+    }
+
+    resume() {
+        this.gameState = 'PLAYING';
+        this.ui.pauseMenu.classList.add('hidden');
+        this.ui.hud.classList.remove('hidden');
+    }
+
+    showMainMenu() {
+        this.gameState = 'MENU';
+        this.ui.pauseMenu.classList.add('hidden');
+        this.ui.mainMenu.classList.remove('hidden');
+        this.ui.hud.classList.add('hidden');
+        this.resetGame(false);
+    }
+
+    resetGame(shouldPlay) {
+        this.speed = 0;
+        this.angle = 0;
+        this.driftAngle = 0;
+        this.car.position.set(0, 0, 0);
+        this.car.rotation.set(0, 0, 0);
+        this.camera.position.set(0, 5, -10); // Quick reset camera
+        if (shouldPlay) this.resume();
+    }
+
+    toggleHowTo(show) {
+        if (show) {
+            this.ui.howToModal.classList.remove('hidden');
+        } else {
+            this.ui.howToModal.classList.add('hidden');
+        }
+    }
+
     animate() {
+        requestAnimationFrame(() => this.animate());
+        
         const dt = Math.min(this.clock.getDelta(), 0.1);
         
+        // Always render, but only update physics if playing
+        if (this.gameState !== 'PLAYING') {
+            this.renderer.render(this.scene, this.camera);
+            return;
+        }
+
         // Physics Constants
         const ACCEL = 50;
         const MAX_SPEED = 50;
@@ -392,18 +481,15 @@ class ToonGame {
         this.camera.lookAt(lookTarget);
 
         // UI update
-        const speedVal = Math.abs(Math.round(this.speed));
-        document.getElementById('speed').innerText = speedVal;
+        this.ui.speed.innerText = Math.abs(Math.round(this.speed));
         
         // Visual indicator for Cruise Mode
-        const speedLabel = document.querySelector('.speed-card small');
-        if (speedLabel) {
-            speedLabel.innerText = this.isCruiseMode ? `CRUISE @ ${Math.round(this.cruiseSpeed)}` : "KM/H";
-            speedLabel.style.color = this.isCruiseMode ? "#4ecdc4" : "#666";
+        if (this.ui.speedLabel) {
+            this.ui.speedLabel.innerText = this.isCruiseMode ? `CRUISE @ ${Math.round(this.cruiseSpeed)}` : "KM/H";
+            this.ui.speedLabel.style.color = this.isCruiseMode ? "#4ecdc4" : "rgba(255,255,255,0.7)";
         }
 
         this.renderer.render(this.scene, this.camera);
-        requestAnimationFrame(() => this.animate());
     }
     spawnSmoke() {
         const smokeGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
@@ -479,6 +565,95 @@ class ToonGame {
                 
                 break;
             }
+        }
+    }
+    // ——— MUSIC SYSTEM ———
+    setupMusic() {
+        // Define your tracks here. Add filenames from the music/ folder.
+        // Supported: .mp3, .ogg, .wav
+        this.musicTracks = [
+            'music/track1.mp3',
+            'music/track2.mp3',
+            'music/track3.mp3',
+            'music/track4.mp3',
+            'music/track5.mp3'
+        ];
+        this.currentTrackIndex = 0;
+        this.musicEnabled = false;
+        this.audio = new Audio();
+        this.audio.volume = 0.4;
+
+        // When a track ends, play the next one
+        this.audio.addEventListener('ended', () => {
+            this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicTracks.length;
+            this.playCurrentTrack();
+        });
+
+        // Handle load errors (skip to next track)
+        this.audio.addEventListener('error', () => {
+            if (this.musicEnabled) {
+                this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicTracks.length;
+                // Avoid infinite loop if all tracks fail
+                this._errorCount = (this._errorCount || 0) + 1;
+                if (this._errorCount < this.musicTracks.length) {
+                    this.playCurrentTrack();
+                } else {
+                    console.warn('No playable music tracks found in music/ folder.');
+                    this.musicEnabled = false;
+                    this.updateMusicUI();
+                }
+            }
+        });
+
+        // Toggle button
+        const btn = document.getElementById('music-toggle');
+        btn.addEventListener('click', () => this.toggleMusic());
+    }
+
+    toggleMusic() {
+        this.musicEnabled = !this.musicEnabled;
+        this._errorCount = 0;
+
+        if (this.musicEnabled) {
+            this.playCurrentTrack();
+        } else {
+            this.audio.pause();
+            this.audio.currentTime = 0;
+        }
+        this.updateMusicUI();
+    }
+
+    playCurrentTrack() {
+        const track = this.musicTracks[this.currentTrackIndex];
+        this.audio.src = track;
+        this.audio.play().catch(() => {});
+        this.updateMusicUI();
+    }
+
+    updateMusicUI() {
+        const btn = document.getElementById('music-toggle');
+        const icon = document.getElementById('music-icon');
+        const label = document.getElementById('music-label');
+        const nowPlaying = document.getElementById('now-playing');
+
+        if (this.musicEnabled) {
+            btn.classList.add('active');
+            icon.textContent = '♪';
+            label.textContent = 'MUSIC ON';
+
+            // Show track name
+            const trackName = this.musicTracks[this.currentTrackIndex]
+                .split('/').pop()
+                .replace(/\.[^.]+$/, '')
+                .replace(/[_-]/g, ' ')
+                .toUpperCase();
+            nowPlaying.textContent = '♪ NOW PLAYING: ' + trackName;
+            nowPlaying.classList.remove('hidden');
+        } else {
+            btn.classList.remove('active');
+            icon.textContent = '♪';
+            label.textContent = 'MUSIC OFF';
+            nowPlaying.classList.add('hidden');
         }
     }
 }

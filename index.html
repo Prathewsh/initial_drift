@@ -4,18 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Initial Drift | Low Poly Open World</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="ui">
-        <div class="speed-card">
-            <span id="speed">0</span>
-            <small>KM/H</small>
+        <!-- Main Menu -->
+        <div id="main-menu" class="overlay">
+            <div class="speed-lines"></div>
+            <div class="menu-content main-title-screen">
+                <div class="title-block">
+                    <span class="title-initial">INITIAL</span>
+                    <span class="title-d">D</span>
+                    <span class="title-rift">RIFT</span>
+                </div>
+                <p class="subtitle">頭文字ドリフト</p>
+                <div class="tagline">LOW POLY &bull; OPEN WORLD &bull; TOON DRIFT</div>
+                <div class="menu-buttons">
+                    <button id="start-btn" class="id-btn primary-btn">
+                        <span class="btn-icon">▶</span> START
+                    </button>
+                    <button id="how-to-btn" class="id-btn secondary-btn">
+                        <span class="btn-icon">?</span> HOW TO PLAY
+                    </button>
+                </div>
+                <div class="footer-hint">PRESS ENTER OR CLICK START</div>
+            </div>
         </div>
-        <div class="controls-card">
-            WASD to Drive | SPACE to Brake | L to Cruise
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="overlay hidden">
+            <div class="speed-lines"></div>
+            <div class="menu-content">
+                <h2 class="pause-title">PAUSED</h2>
+                <p class="pause-sub">一時停止</p>
+                <div class="menu-buttons">
+                    <button id="resume-btn" class="id-btn primary-btn">
+                        <span class="btn-icon">▶</span> RESUME
+                    </button>
+                    <button id="restart-btn" class="id-btn secondary-btn">
+                        <span class="btn-icon">↺</span> RESTART
+                    </button>
+                    <button id="quit-btn" class="id-btn secondary-btn">
+                        <span class="btn-icon">✕</span> MAIN MENU
+                    </button>
+                </div>
+            </div>
         </div>
+
+        <!-- How to Play -->
+        <div id="how-to-modal" class="overlay hidden">
+            <div class="speed-lines"></div>
+            <div class="menu-content small">
+                <h2 class="how-to-title">CONTROLS</h2>
+                <p class="pause-sub">操作方法</p>
+                <ul class="controls-list">
+                    <li><span class="key">W</span><span class="action">ACCELERATE</span></li>
+                    <li><span class="key">S</span><span class="action">BRAKE / REVERSE</span></li>
+                    <li><span class="key">A / D</span><span class="action">STEERING</span></li>
+                    <li><span class="key">SPACE</span><span class="action">HANDBRAKE DRIFT</span></li>
+                    <li><span class="key">L</span><span class="action">CRUISE CONTROL</span></li>
+                    <li><span class="key">ESC</span><span class="action">PAUSE</span></li>
+                </ul>
+                <button id="close-how-to" class="id-btn primary-btn">
+                    <span class="btn-icon">▶</span> GOT IT
+                </button>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div class="speed-card">
+                <span id="speed">0</span>
+                <small>KM/H</small>
+            </div>
+            <div class="controls-card">
+                ESC — PAUSE
+            </div>
+        </div>
+
+        <!-- Music Toggle (always visible) -->
+        <button id="music-toggle" class="music-btn" title="Toggle Music">
+            <span class="music-icon" id="music-icon">♪</span>
+            <span class="music-label" id="music-label">MUSIC OFF</span>
+        </button>
+        <div id="now-playing" class="now-playing hidden"></div>
     </div>
     
     <canvas id="game"></canvas>
