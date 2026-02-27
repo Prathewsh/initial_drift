@@ -27,8 +27,35 @@
                     <button id="how-to-btn" class="id-btn secondary-btn">
                         <span class="btn-icon">?</span> HOW TO PLAY
                     </button>
+                    <button id="release-notes-btn" class="id-btn secondary-btn">
+                        <span class="btn-icon">📋</span> RELEASE NOTES
+                    </button>
                 </div>
+                <div class="version-tag">ALPHA v0.0.1</div>
                 <div class="footer-hint">PRESS ENTER OR CLICK START</div>
+            </div>
+        </div>
+
+        <!-- Release Notes Modal -->
+        <div id="release-notes-modal" class="overlay hidden">
+            <div class="speed-lines"></div>
+            <div class="menu-content small scrollable">
+                <h2 class="how-to-title">RELEASE NOTES</h2>
+                <p class="pause-sub">更新履歴</p>
+                <div class="release-content">
+                    <h3>v0.0.1 - Alpha Release</h3>
+                    <ul>
+                        <li>Initial open-world drift engine implementation.</li>
+                        <li>Custom Drift physics with momentum lag.</li>
+                        <li>Dynamic chase camera with speed-fov reaction.</li>
+                        <li>Low-poly city environment with collisions.</li>
+                        <li>Cruise control and Eurobeat music system.</li>
+                        <li>Interactive UI with pause and how-to menus.</li>
+                    </ul>
+                </div>
+                <button id="close-release-notes" class="id-btn primary-btn">
+                    <span class="btn-icon">▶</span> BACK
+                </button>
             </div>
         </div>
 

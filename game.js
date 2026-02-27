@@ -57,7 +57,8 @@ class ToonGame {
             howToModal: document.getElementById('how-to-modal'),
             hud: document.getElementById('hud'),
             speed: document.getElementById('speed'),
-            speedLabel: document.querySelector('.speed-card small')
+            speedLabel: document.querySelector('.speed-card small'),
+            releaseNotesModal: document.getElementById('release-notes-modal')
         };
     }
 
@@ -268,6 +269,8 @@ class ToonGame {
         document.getElementById('quit-btn').onclick = () => this.showMainMenu();
         document.getElementById('how-to-btn').onclick = () => this.toggleHowTo(true);
         document.getElementById('close-how-to').onclick = () => this.toggleHowTo(false);
+        document.getElementById('release-notes-btn').onclick = () => this.toggleReleaseNotes(true);
+        document.getElementById('close-release-notes').onclick = () => this.toggleReleaseNotes(false);
 
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -319,6 +322,14 @@ class ToonGame {
             this.ui.howToModal.classList.remove('hidden');
         } else {
             this.ui.howToModal.classList.add('hidden');
+        }
+    }
+
+    toggleReleaseNotes(show) {
+        if (show) {
+            this.ui.releaseNotesModal.classList.remove('hidden');
+        } else {
+            this.ui.releaseNotesModal.classList.add('hidden');
         }
     }
 
@@ -411,7 +422,7 @@ class ToonGame {
 
         // Steering Power
         let steerPower = Math.min(1.5, 2.5 / (1 + speedFactor * 0.5));
-        if (this.isDrifting) steerPower *= 2.0; 
+        if (this.isDrifting) steerPower *= 0.8; // Reduced from 1.3 to make body turn slower
         
         let steerInput = 0;
         if (this.keys['KeyA']) steerInput = 1;
@@ -422,11 +433,12 @@ class ToonGame {
         // Drift Visual Angle
         let targetDrift = 0;
         if (this.isDrifting) {
-            targetDrift = steerInput * 0.75; 
+            targetDrift = steerInput * 0.6; // Reduced from 0.75
         } else {
             targetDrift = steerInput * speedFactor * 0.15; 
         }
-        this.driftAngle = THREE.MathUtils.lerp(this.driftAngle, targetDrift, 5 * dt);
+        // Slower lerp (3 instead of 5) makes the body rotation smooth and "heavy"
+        this.driftAngle = THREE.MathUtils.lerp(this.driftAngle, targetDrift, 3 * dt);
 
         // Position Updates (Momentum Lag)
         if (this.moveDirection === undefined) this.moveDirection = this.angle;
@@ -572,11 +584,7 @@ class ToonGame {
         // Define your tracks here. Add filenames from the music/ folder.
         // Supported: .mp3, .ogg, .wav
         this.musicTracks = [
-            'music/track1.mp3',
-            'music/track2.mp3',
-            'music/track3.mp3',
-            'music/track4.mp3',
-            'music/track5.mp3'
+            'music/Leslie Parrish - Killing My Love.mp3'
         ];
         this.currentTrackIndex = 0;
         this.musicEnabled = false;
